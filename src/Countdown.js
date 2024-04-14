@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from "react";
 
 function CountdownTimer() {
-  const [targetDate, setTargetDate] = useState("");
+  const [targetDate, setTargetDate] = useState(new Date());
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [timerId, setTimerId] = useState(null);
 
   const startCountdown = () => {
-    const targetTime = new Date(targetDate).getTime();
+    const currentTime = new Date().getTime();
+    const targetTime = targetDate.getTime();
+    const remaining = targetTime - currentTime;
+    setTimeRemaining(remaining);
+
     const id = setInterval(() => {
       const currentTime = new Date().getTime();
       const remaining = targetTime - currentTime;
@@ -15,6 +19,7 @@ function CountdownTimer() {
         clearInterval(id);
       }
     }, 1000);
+
     setTimerId(id);
   };
 
@@ -39,18 +44,45 @@ function CountdownTimer() {
   };
 
   return (
-    <div>
-      <h1>Countdown Timer</h1>
-      <div>Countdown Timer: {formatTime(timeRemaining)}</div>
-      <label htmlFor="datetime">Enter Target Date and Time:</label>
-      <input
-        type="datetime-local"
-        id="datetime"
-        value={targetDate}
-        onChange={(e) => setTargetDate(e.target.value)}
-      />
-      <button onClick={startCountdown}>Start Countdown</button>
-      <button onClick={stopCountdown}>Stop Countdown</button>
+    <div className="countdown-container">
+      <h1 className="title">Countdown Timer</h1>
+      <div className="countdown">{formatTime(timeRemaining)}</div>
+      <div className="input-container">
+        <label htmlFor="date">Select Target Date:</label>
+        <input
+          type="date"
+          id="date"
+          value={targetDate.toISOString().split("T")[0]}
+          onChange={(e) => setTargetDate(new Date(e.target.value))}
+        />
+        <label htmlFor="time">Select Target Time:</label>
+        <input
+          type="time"
+          id="time"
+          value={`${targetDate
+            .getHours()
+            .toString()
+            .padStart(2, "0")}:${targetDate
+            .getMinutes()
+            .toString()
+            .padStart(2, "0")}`}
+          onChange={(e) =>
+            setTargetDate(
+              new Date(
+                `${targetDate.toISOString().split("T")[0]}T${e.target.value}`
+              )
+            )
+          }
+        />
+      </div>
+      <div className="button-container">
+        <button className="start-button" onClick={startCountdown}>
+          Start Countdown
+        </button>
+        <button className="stop-button" onClick={stopCountdown}>
+          Stop Countdown
+        </button>
+      </div>
     </div>
   );
 }
